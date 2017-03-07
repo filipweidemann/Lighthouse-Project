@@ -6,28 +6,39 @@
 //////////////////////////////////////////////////////
 
 
-import java.awt.Label;
 import java.awt.event.KeyEvent;
 import java.util.ArrayList;
+import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class GameModel {
-	 private ArrayList<GameObject> objects = new ArrayList<>();
-	 private Player player;
-	 private Player player2;
+	private List<GameView> views;
+	private List<GameObject> objects;
+	private Player player;
+	private Obstacles obstacle;
 
-	 private Obstacles obstacle;
 	
 	public GameModel () {
+		views = new ArrayList<>();
+		objects = new ArrayList<>();
+		
 		player = new Player();
-        player2 = new Player(7.0/14, 0.0, 1.0/14, 4.0/7);
-		obstacle = new Obstacles();
-
-		objects.add(player2);
+        // Player player2 = new Player(14.0/28, 0.0, 2.0/28, 8.0/14);
+        // objects.add(player2);
         objects.add(player);
+		obstacle = new Obstacles();
+		objects.add(obstacle);
+	}
+
+	
+	public List<GameObject> getObjects () {
+		return this.objects;
 	}
 	
-	public ArrayList getObjects () {
-		return this.objects;
+	public void addView(GameView view) { //add a Observer
+		views.add(view);
+		view.setModel(this);
 	}
 
 	public void keyPressed(int keyCode) {

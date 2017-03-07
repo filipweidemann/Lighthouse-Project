@@ -7,17 +7,26 @@
 
 
 public class GameObject {
-	
+
 	private double x;
 	private double y;
 	private double width;
 	private double height;
-	
+	private int type;
+
+	private double lastX, lastY, lastW, lastH;
+
 	public GameObject(double x, double y, double w, double h) {
 		this.setX(x);
 		this.setY(y);
 		this.setWidth(w);
 		this.setHeight(h);
+
+		this.lastX = x;
+		this.lastY = y;
+		this.lastW = w;
+		this.lastH = h;
+        //System.out.println("Last X: " + lastX + "\n" + "Last Y: " + lastY + "\n" + "Last W: " + lastW + "\n" + "Last H: " + lastH + "\n");
 	}
 
 	public double getX() {
@@ -50,5 +59,13 @@ public class GameObject {
 
 	public void setHeight(double height) {
 		this.height = height;
+	}
+
+	public void setType(int type) {
+		this.type = type;
+	}
+
+	public int getType() {
+		return type;
 	}
 }

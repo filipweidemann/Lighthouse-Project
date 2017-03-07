@@ -1,6 +1,7 @@
+
 //////////////////////////////////////////////////
 // Name: GameView
-// Beschreibung: Für die Anzeige zuständig
+// Beschreibung: F��r die Anzeige zust��ndig
 // 
 // 
 //////////////////////////////////////////////////////
@@ -9,74 +10,147 @@ import org.w3c.dom.css.Rect;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.geom.Rectangle2D;
+import java.awt.image.BufferedImage;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
-import java.util.Scanner;
+import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class GameView extends JPanel {
-	
-	private ArrayList<GameObject> playerObject;
-    private ArrayList<GameObject> obstacleObjects;
+
+    public double round2Decimal(double d) {
+        DecimalFormat twoDForm = new DecimalFormat("#.##");
+        return Double.valueOf(twoDForm.format(d));
+    }
+
+	private JFrame window;
+    private int playerX, playerY, playerW, playerH;
+    private int obstacleX, obstacleY, obstacleW, obstacleH;
+	private GameModel model;
+	private List<GameObject> playerObjects;
+	private List<GameObject> obstacleObjects;
 	public int width, height;
 
 
-    public GameView(){
+	public GameView(int width, int height) {
+		window = new JFrame();
+		window.setTitle("Lighthouse Project Window");
+		window.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+		window.add(this);
+		window.setVisible(true);
+		
+		/////// Das geht noch nicht richtig:
+		window.setSize(width, height);
+		window.getContentPane().setSize(new Dimension(width, height));
+		this.setSize(window.getContentPane().getSize());
+		///////
+		
+		this.setFocusable(true);
+		this.requestFocusInWindow();
+		
+		// playerObjects = new ArrayList<>();
+		
+		obstacleObjects = new ArrayList<>();
 
-        Scanner reader = new Scanner(System.in);  // Reading from System.in
-        System.out.println("Enter width: ");
-        width = reader.nextInt(); // Scans the next token of the input as an int.
-        System.out.println("Enter height");
-        height = reader.nextInt();
+		TimerTask timerTask = new TimerTask() {
 
-        initForm(width, height);
-        playerObject = new ArrayList<>();
-        obstacleObjects = new ArrayList<>();
-    }
+			@Override
+			public void run() {
+				repaint();
+			}
+		};
 
-    public void initForm(int width, int height){
+		Timer timer = new Timer("myTimer");
+		timer.schedule(timerTask, 0, 1);
+	}
 
-        this.setLayout(new FlowLayout());
-        this.setBounds(0, 0, width, height);
-    }
+	public GameView() {
+		this(100, 200);
+	}
 
-    @Override
-    public void paint(Graphics g){
+	public JFrame getFrame() {
+		return this.window;
+	}
 
-        // For Player Object
-    	for(GameObject player : playerObject){
-            super.paint(g);
-    		int x = (int) (player.getX()*this.getWidth());
-    		int y = (int) ((1-player.getY())*this.getHeight());
-    		int w = (int) (player.getWidth()*this.getWidth());
-    		int h = (int) ((1-player.getHeight())*this.getHeight());
+	// Hier drin ist die Kollision,
+    // und Player/Hindernisse sind unterschiedlich gefärbt ;)
+    // außerdem ist die update-methode der Hindernisse etwas überarbeitet,
+    // damit es random die Hindernisse generiert
 
-    		g.setColor(Color.RED);
-    		g.drawRect(x, y-h, w, h);
-    		g.fillRect(x, y-h, w, h);
+	@Override
+	public void paint(Graphics g) {
+		super.paint(g);
+		for (GameObject player : model.getObjects()) {
+			if(player instanceof Player) {
+
+				// Übertragen der aktuellen Playerkoordinaten
+				if(this.getWidth() == 28){
+					playerX = (int) (player.getX() * this.getWidth());
+					playerY = (int) (-(player.getY() * this.getHeight()));
+					playerW = (int) (player.getWidth() * this.getWidth());
+					playerH = (int) (-(player.getHeight() * this.getHeight()));
+				}
+
+				int x = (int) (player.getX() * this.getWidth());
+				int y = (int) ((1 - player.getY()) * this.getHeight());
+				int w = (int) (player.getWidth() * this.getWidth());
+				int h = (int) ((player.getHeight()) * this.getHeight());
+
+				g.setColor(Color.RED);
+				g.fillRect(x, y - h, w, h);
+
+			} else if(player instanceof Obstacles){
+
+                if(this.getWidth() == 28){
+                    obstacleX = (int) (player.getX() * this.getWidth());
+                    obstacleY = (int) (-(player.getY() * this.getHeight()));
+                    obstacleW = (int) (player.getWidth() * this.getWidth());
+                    obstacleH = (int) (-(player.getHeight() * this.getHeight()));
+                }
+
+				int x = (int) (player.getX() * this.getWidth());
+				int y = (int) ((1 - player.getY()) * this.getHeight());
+				int w = (int) (player.getWidth() * this.getWidth());
+				int h = (int) ((player.getHeight()) * this.getHeight());
+
+				g.setColor(Color.GREEN.darker());
+				g.fillRect(x, y - h, w, h);
+
+
+                // Kollisionsabfrage
+                if(this.getWidth() == 28){
+
+                    if(player.getType() == 1){
+                        if((playerY + playerH) >= obstacleY){
+                            System.out.println("Colliding!");
+                        }
+                    } else if(player.getType() == 0){
+                        if(playerY < (obstacleY + obstacleH)){
+                            System.out.println("Colliding!");
+                        }
+                    }
+                }
+			}
 		}
 
-        for(GameObject obstacle : obstacleObjects){
-            super.paint(g);
-            int x = (int) (obstacle.getX()*this.getWidth());
-            int y = (int) ((1-obstacle.getY())*this.getHeight());
-            int w = (int) (obstacle.getWidth()*this.getWidth());
-            int h = (int) ((1-obstacle.getHeight())*this.getHeight());
 
-            g.setColor(Color.GREEN);
-            g.drawRect(x, y-h, w, h);
-            g.fillRect(x, y-h, w, h);
-        }
 
-    }
-    
-    public void repaintView(Object c){
-    	playerObject.clear();
-    	obstacleObjects.clear();
-    	playerObject.add((GameObject) c);
-    	// todo: fix order
-    	// DAS HIER IST DAS PROBLEM
-        // UEBERSCHREIBT DAS ANDERE ARRAY, SODASS DEREN INHALTE
-        // NIE AUFGERUFEN WERDEN!
-    	obstacleObjects.add((GameObject) c);
-    }
+	}
+
+	public void setModel(GameModel model) {
+		this.model = model;
+		//playerObjects = model.getObjects();
+		//repaint();
+	}
+	
+	public BufferedImage getViewImage() {
+		//System.out.println(size());
+		BufferedImage bi = new BufferedImage(28, 14, BufferedImage.TYPE_INT_RGB);
+		Graphics2D g = bi.createGraphics();
+		this.paint(g);
+		return bi;
+	}
 
 }
