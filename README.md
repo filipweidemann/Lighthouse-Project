@@ -15,7 +15,7 @@ to a ratio of 2:1 to ensure the correct depiction of the game at every given poi
 
 Programmed by Nils & myself.
 Feel free to mod the code as you like, nobody saw it on the Lighthouse this year..
-Maybe you can take my code for the next InfprogOO course in 2018 and invite us to your showcase,
+Maybe you can take our code for the next InfprogOO course in 2018 and invite us to your showcase,
 we'd love to see our code performing live.. it is definitely capable of that, every simulation
 passed without any problem at all :/
 
